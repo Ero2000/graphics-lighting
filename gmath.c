@@ -9,38 +9,64 @@
 //lighting functions
 color get_lighting( double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
   color i;
+  i.red = calculate_ambient(alight, areflect).red + calculate_diffuse(light, *dreflect, normal).red + calculate_specular(light, sreflect, view, normal).red;
   return i;
 }
 
 color calculate_ambient(color alight, double *areflect ) {
   color a;
+  a.red = alight.red * areflect[RED];
+  a.green = alight.green * areflect[GREEN];
+  a.blue = alight.blue * areflect[BLUE];
+  limit_color(&a);
   return a;
 }
 
 color calculate_diffuse(double light[2][3], double *dreflect, double *normal ) {
   color d;
+  double ct = dot_product(normal, dreflect);
+  d.red = dreflect[RED] * ct * light[COLOR][RED];
+  d.green = dreflect[GREEN] * ct * light[COLOR][GREEN];
+  d.blue = dreflect[BLUE] * ct * light[COLOR][GREEN];
+  limit_color(&d);
   return d;
 }
 
 color calculate_specular(double light[2][3], double *sreflect, double *view, double *normal ) {
-
   color s;
+  Rr = (2 * (dot_product(normal, light[LOCATION]) * normal[RED])) - normalize(light[LOCATION][RED]);
+  Rg = (2 * (dot_product(normal, light[LOCATION]) * normal[GREEN])) - normalize(light[LOCATION][GREEN]);
+  Rb = (2 * (dot_product(normal, light[LOCATION]) * normal[BLUE])) - normalize(light[LOCATION][BLUE]);
+  s.red = light[COLOR][RED] * sreflect[RED] * dot_product(Rr,view[RED]);
+  s.green = light[COLOR][GREEN] * sreflect[GREEN] * dot_product(Rr,view[GREEN]);
+  s.blue = light[COLOR][BLUE] * sreflect[BLUE] * dot_product(Rr,view[BLUE]);
+  limit_color(&ds);
   return s;
 }
 
 
 //limit each component of c to a max of 255
 void limit_color( color * c ) {
+  if (c->red > 255)
+    c->red = 255;
+  if (c->blue > 255)
+    c->blue = 255;
+  if (c->green > 255)
+    c->green = 255;
 }
 
 //vector functions
-//normalize vetor, should modify the parameter
+//normalize vector, should modify the parameter
 void normalize( double *vector ) {
+  double temp = sqrt((vector[0]*vector[0]) + (vector[1]*vector[1]) + (vector[2]*vector[2]));
+  vector[0] /= temp;
+  vector[1] /= temp;
+  vector[2] /= temp;
 }
 
 //Return the dot porduct of a . b
 double dot_product( double *a, double *b ) {
-  return 0;
+  return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]);
 }
 
 double *calculate_normal(struct matrix *polygons, int i) {
