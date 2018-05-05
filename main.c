@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
   light[LOCATION][1] = 0.75;
   light[LOCATION][2] = 1;
 
-  light[COLOR][RED] = 0;
-  light[COLOR][GREEN] = 255;
+  light[COLOR][RED] = 200;
+  light[COLOR][GREEN] = 150;
   light[COLOR][BLUE] = 255;
 
   view[0] = 0;
