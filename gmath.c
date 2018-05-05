@@ -9,7 +9,10 @@
 //lighting functions
 color get_lighting( double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
   color i;
-  i.red = calculate_ambient(alight, areflect).red + calculate_diffuse(light, *dreflect, normal).red + calculate_specular(light, sreflect, view, normal).red;
+  i.red = calculate_ambient(alight, areflect).red + calculate_diffuse(light, dreflect, normal).red + calculate_specular(light, sreflect, view, normal).red;
+  i.green = calculate_ambient(alight, areflect).green + calculate_diffuse(light, dreflect, normal).green + calculate_specular(light, sreflect, view, normal).green;
+  i.blue = calculate_ambient(alight, areflect).blue + calculate_diffuse(light, dreflect, normal).blue + calculate_specular(light, sreflect, view, normal).blue;
+  limit_color(&i);
   return i;
 }
 
@@ -34,13 +37,19 @@ color calculate_diffuse(double light[2][3], double *dreflect, double *normal ) {
 
 color calculate_specular(double light[2][3], double *sreflect, double *view, double *normal ) {
   color s;
-  Rr = (2 * (dot_product(normal, light[LOCATION]) * normal[RED])) - normalize(light[LOCATION][RED]);
-  Rg = (2 * (dot_product(normal, light[LOCATION]) * normal[GREEN])) - normalize(light[LOCATION][GREEN]);
-  Rb = (2 * (dot_product(normal, light[LOCATION]) * normal[BLUE])) - normalize(light[LOCATION][BLUE]);
-  s.red = light[COLOR][RED] * sreflect[RED] * dot_product(Rr,view[RED]);
-  s.green = light[COLOR][GREEN] * sreflect[GREEN] * dot_product(Rr,view[GREEN]);
-  s.blue = light[COLOR][BLUE] * sreflect[BLUE] * dot_product(Rr,view[BLUE]);
-  limit_color(&ds);
+  double *tmp = light[LOCATION];
+  normalize(tmp);
+  double r = tmp[0];
+  double g = tmp[1];
+  double b = tmp[2];
+  
+  double Rr = (2 * (dot_product(normal, light[LOCATION]) * normal[RED])) - r;
+  double Rg = (2 * (dot_product(normal, light[LOCATION]) * normal[GREEN])) - g;
+  double Rb = (2 * (dot_product(normal, light[LOCATION]) * normal[BLUE])) - b;
+  s.red = light[COLOR][RED] * sreflect[RED] * dot_product(&Rr,view);
+  s.green = light[COLOR][GREEN] * sreflect[GREEN] * dot_product(&Rg,view);
+  s.blue = light[COLOR][BLUE] * sreflect[BLUE] * dot_product(&Rb,view);
+  limit_color(&s);
   return s;
 }
 
